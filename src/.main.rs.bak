@@ -1,0 +1,74 @@
+use exitfailure::ExitFailure;
+use reqwest::Url;
+use serde_derive::{Deserialize, Serialize};
+use std::collections::HashMap;
+
+#[derive(Serialize, Deserialize, Debug)]
+struct ExchangeInfo {
+    timezone: String,
+    serverTime: i64,
+    #[serde(flatten)]
+    rateLimits: HashMap<String, RateLimit>,
+    exchangeFilters: Option<Vec<String>>,
+    #[serde(flatten)]
+    Symbols: HashMap<String, Symbol>,
+}
+#[derive(Serialize, Deserialize, Debug)]
+struct RateLimit {
+    rateLimitType: String,
+    interval: String,
+    intervalNum: i32,
+    limit: i32,
+}
+#[derive(Serialize,Deserialize,Debug)]
+struct Symbol {
+    symbol: String,
+    status: String,
+    baseAsset: String,
+    baseAssetPrecision: i32,
+    quoteAsset: String,
+    quotePrecision: i32,
+    quoteAssetPrecision: i32,
+    baseCommissionPrecision: i32,
+    quoteCommissionPrecision: i32,
+    orderTypes: Vec<String>,
+    icebergAllowed: bool,
+    ocoAllowed: bool,
+    quoteOrderQtyMarketAllowed: bool,
+    allowTrailingStop: bool,
+    cancelReplaceAllowed: bool,
+    isSpotTradingAllowed: bool,
+    isMarginTradingAllowed: bool,
+    #[serde(flatten)]
+    //filters: HashMap<String, Filter>,
+    filters:  Option<HashMap<String, serde_json::Value>>,
+    permissions: Vec<String>,
+}
+#[derive(Serialize,Deserialize,Debug)]
+struct Filter {
+    filterType: String,
+    minPrice: String,
+    maxPrice: String,
+    tickSize: String,
+}  
+ 
+
+impl ExchangeInfo {
+    async fn get_exchange_info() -> Result<Self, ExitFailure> {
+        let url = "https://api.binance.com/api/v3/exchangeInfo?symbol=BNBBTC".to_string();
+
+        let url = Url::parse(url.as_str())?;
+
+        let res = reqwest::get(url).await?.json::<ExchangeInfo>().await?;
+
+        Ok(res)
+    }
+}
+
+#[tokio::main]
+async fn main() -> Result<(), ExitFailure> {
+    let res = ExchangeInfo::get_exchange_info().await?;
+    println!("{:?}", res.serverTime);
+
+    Ok(())
+}
