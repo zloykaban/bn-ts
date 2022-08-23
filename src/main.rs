@@ -1,57 +1,53 @@
 use exitfailure::ExitFailure;
 use reqwest::Url;
 use serde_derive::{Deserialize, Serialize};
-use std::collections::HashMap;
+//use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 struct ExchangeInfo {
     timezone: String,
-    serverTime: i64,
-    #[serde(flatten)]
-    rateLimits: HashMap<String, RateLimit>,
-    exchangeFilters: Option<Vec<String>>,
-    #[serde(flatten)]
-    Symbols: HashMap<String, Symbol>,
+    server_time: i64,
+    //rate_limits: Vec<RateLimit>,
+    rate_limits: Vec<RateLimit>,
+    //rate_limits: HashMap<String, RateLimit>,
+    exchange_filters: Vec<String>,
+    symbols: Vec<Symbol>,
 }
+
 #[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 struct RateLimit {
-    rateLimitType: String,
+    //enum RateLimit {
+    rate_limit_type: String,
     interval: String,
-    intervalNum: i32,
+    interval_num: i32,
     limit: i32,
 }
-#[derive(Serialize,Deserialize,Debug)]
+
+#[derive(Serialize, Deserialize, Debug)]
+#[serde(rename_all = "camelCase")]
 struct Symbol {
     symbol: String,
     status: String,
-    baseAsset: String,
-    baseAssetPrecision: i32,
-    quoteAsset: String,
-    quotePrecision: i32,
-    quoteAssetPrecision: i32,
-    baseCommissionPrecision: i32,
-    quoteCommissionPrecision: i32,
-    orderTypes: Vec<String>,
-    icebergAllowed: bool,
-    ocoAllowed: bool,
-    quoteOrderQtyMarketAllowed: bool,
-    allowTrailingStop: bool,
-    cancelReplaceAllowed: bool,
-    isSpotTradingAllowed: bool,
-    isMarginTradingAllowed: bool,
-    #[serde(flatten)]
-    //filters: HashMap<String, Filter>,
-    filters:  Option<HashMap<String, serde_json::Value>>,
+    base_asset: String,
+    base_asset_precision: i32,
+    quote_asset: String,
+    quote_precision: i32,
+    quote_asset_precision: i32,
+    base_commission_precision: i32,
+    quote_commission_precision: i32,
+    order_types: Vec<String>,
+    iceberg_allowed: bool,
+    oco_allowed: bool,
+    quote_order_qty_market_allowed: bool,
+    allow_trailing_stop: bool,
+    cancel_replace_allowed: bool,
+    is_spot_trading_allowed: bool,
+    is_margin_trading_allowed: bool,
+    filters: Vec<serde_json::Value>,
     permissions: Vec<String>,
 }
-#[derive(Serialize,Deserialize,Debug)]
-struct Filter {
-    filterType: String,
-    minPrice: String,
-    maxPrice: String,
-    tickSize: String,
-}  
- 
 
 impl ExchangeInfo {
     async fn get_exchange_info() -> Result<Self, ExitFailure> {
@@ -68,7 +64,7 @@ impl ExchangeInfo {
 #[tokio::main]
 async fn main() -> Result<(), ExitFailure> {
     let res = ExchangeInfo::get_exchange_info().await?;
-    println!("{:?}", res.serverTime);
+    println!("{:?}", res.rate_limits);
 
     Ok(())
 }
