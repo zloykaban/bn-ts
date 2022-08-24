@@ -1,16 +1,15 @@
 use exitfailure::ExitFailure;
 use reqwest::Url;
 use serde_derive::{Deserialize, Serialize};
-//use std::collections::HashMap;
+use serde_json::Map;
+use std::collections::HashMap;
 
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct ExchangeInfo {
     timezone: String,
     server_time: i64,
-    //rate_limits: Vec<RateLimit>,
     rate_limits: Vec<RateLimit>,
-    //rate_limits: HashMap<String, RateLimit>,
     exchange_filters: Vec<String>,
     symbols: Vec<Symbol>,
 }
@@ -18,7 +17,6 @@ struct ExchangeInfo {
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(rename_all = "camelCase")]
 struct RateLimit {
-    //enum RateLimit {
     rate_limit_type: String,
     interval: String,
     interval_num: i32,
@@ -64,7 +62,7 @@ impl ExchangeInfo {
 #[tokio::main]
 async fn main() -> Result<(), ExitFailure> {
     let res = ExchangeInfo::get_exchange_info().await?;
-    println!("{:?}", res.rate_limits);
+    println!("{:?}", res.rate_limits[0].rate_limit_type);
 
     Ok(())
 }
